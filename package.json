@@ -1,0 +1,23 @@
+{
+  "name": "ebs-fushu",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "pretest": "eslint --ignore-path .eslintignore .",
+    "test": "mocha"
+  },
+  "author": "Erik Schwartz",
+  "license": "MIT",
+  "description": "Use with a simple instance tag to automate AWS EBS snapshots",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ecs-hk/ebs-fushu.git"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.329.0",
+    "eslint": "^5.6.1",
+    "eslint-config-strongloop": "^2.1.0",
+    "mocha": "^5.2.0",
+    "rewire": "^4.0.1"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "Snapshots": [
+    {
+      "Description": "Created by ebs-fushu",
+      "OwnerId": "595959xxyybb",
+      "Progress": "100%",
+      "SnapshotId": "snap-0230133eeefffdddd",
+      "StartTime": "2018-10-11T21:17:33.000Z",
+      "State": "completed",
+      "VolumeId": "vol-08d08d08d08d08d08",
+      "VolumeSize": 28,
+      "Tags": [
+        {
+          "Key": "instName",
+          "Value": "gogs"
+        },
+        {
+          "Key": "instId",
+          "Value": "i-01a01a01a01a01a01"
+        },
+        {
+          "Key": "blockDev",
+          "Value": "/dev/sda1"
+        }
+      ]
+    },
+    {
+      "Description": "Created by ebs-fushu",
+      "OwnerId": "595959xxyybb",
+      "Progress": "100%",
+      "SnapshotId": "snap-04816bbbaaaccc222",
+      "StartTime": "2018-10-11T21:17:36.000Z",
+      "State": "completed",
+      "VolumeId": "vol-0ed0ed0ed0ed0ed0e",
+      "VolumeSize": 60,
+      "Tags": [
+        {
+          "Key": "instName",
+          "Value": "maria"
+        },
+        {
+          "Key": "instId",
+          "Value": "i-01b01b01b01b01b01"
+        },
+        {
+          "Key": "blockDev",
+          "Value": "/dev/sda1"
+        }
+      ]
+    },
+    {
+      "Description": "Created by ebs-fushu",
+      "OwnerId": "595959xxyybb",
+      "Progress": "100%",
+      "SnapshotId": "snap-066810aabbddeeeff",
+      "StartTime": "2018-10-10T21:17:38.000Z",
+      "State": "completed",
+      "VolumeId": "vol-08d08d08d08d08d08",
+      "VolumeSize": 28,
+      "Tags": [
+        {
+          "Key": "instName",
+          "Value": "gogs"
+        },
+        {
+          "Key": "instId",
+          "Value": "i-01a01a01a01a01a01"
+        },
+        {
+          "Key": "blockDev",
+          "Value": "/dev/sda1"
+        }
+      ]
+    }
+  ]
+}
