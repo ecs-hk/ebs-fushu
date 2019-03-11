@@ -18,7 +18,7 @@ Now all EBS volumes that are attached to this EC2 instance will have snapshots c
 
 Export Node-related environment variables, a la:
 ```bash
-_node=/path/to/node-v8.x.y
+_node=/path/to/node-v10.x.y
 export NODE_PATH=${_node}/lib/node_modules
 export PATH=${_node}/bin:$PATH
 ```
@@ -110,7 +110,7 @@ The IAM service account used with ebs-fushu will need the following permissions.
 
 Tested with:
 
-- Node.js v8 LTS
+- Node.js v10 LTS
 - AWS SDK for Javascript (API Version: 2016-11-15)
 
 ## Caveat
