@@ -12,7 +12,7 @@ Now all EBS volumes that are attached to this EC2 instance will have snapshots c
 
 1. Download and install [Node.js](https://nodejs.org/) LTS
 2. Clone this repository
-3. Install dependences: `cd ebs-fushu && npm install`
+3. Install dependences: `cd ebs-fushu && npm install --production`
 
 ## Set up environment
 
