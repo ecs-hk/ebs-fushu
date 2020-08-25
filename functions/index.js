@@ -275,7 +275,8 @@ exports.pruneSnapshot = async function(snapshotId) {
     let p = await deleteSnapshot(snapshotId);
     return p;
   } catch (err) {
-    throw new Error(err);
+    console.err(`Problem deleting snapshot (${snapshotId})`);
+    console.err(err);
   }
 };
 
