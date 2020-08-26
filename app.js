@@ -7,98 +7,52 @@
 const path = require('path');
 const process = require('process');
 const argv = require('minimist')(process.argv.slice(2));
-const f = require('./functions');
-
-function printVerboseChatter(verbose, data, title) {
-  if (verbose) {
-    console.log('[VERBOSE - ' + title + ' - begin]');
-    console.log(JSON.stringify(data, null, 2));
-    console.log('[VERBOSE - ' + title + ' - end]');
-  }
-  return;
-}
+const args = require('./helpers/args.js');
+const aws = require('./helpers/aws-ec2.js');
+const munge = require('./helpers/munge.js');
 
 // ----------------------------------------------------------------------------
 //                      FUNCTIONS
 // ----------------------------------------------------------------------------
 
-function parseCliArgs() {
-  let o = {help: false};
-  let knownArgs = ['help', 'verbose', 'dry-run', 'owner-id'];
-  if (argv.hasOwnProperty('help')) {
-    o.help = true;
-    return o;
-  }
-  // If any (possibly misspelled) arguments made it in, let's be safe
-  // and just assume they need help.
-  if (hasUnknownArgs(argv, knownArgs)) {
-    o.help = true;
-    return o;
-  }
-  if (argv.hasOwnProperty('verbose')) {
-    o.verbose = true;
-  }
-  if (argv.hasOwnProperty('dry-run')) {
-    o.dryRun = true;
-  }
-  if (argv.hasOwnProperty('owner-id') && argv['owner-id']) {
-    o.ownerId = '' + argv['owner-id'];
-  } else {
-    o.ownerId = null;
-  }
-  return o;
-}
-
-function hasUnknownArgs(argv, validArgs) {
-  let cliArgs = Object.getOwnPropertyNames(argv);
-  if (cliArgs.length > 0) {
-    for (let i = 0; i < cliArgs.length; i++) {
-      let valid = false;
-      for (let j = 0; j < validArgs.length; j++) {
-        // The special (minimist) property '_' can be ignored.
-        if (cliArgs[i] === validArgs[j] || cliArgs[i] === '_') {
-          valid = true;
-          break;
-        }
-      }
-      if (!valid) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
+/**
+ * Print program usage.
+ */
 function printUsage() {
-  console.log('Usage: ' + path.basename(__filename) + ' --help|' +
-		'--owner-id=AWS_OWNER_ID [--verbose] [--dry-run]');
+  const p = path.basename(__filename);
+  console.log(`Usage: ${p} --help|--owner-id=AWS_OWNER_ID [--dry-run]`);
 }
 
-async function runBackupsAndPruning(ownerId, verbose, dryRun) {
+/**
+ * Gather EC2 instance and EBS snapshot information, prune snapshots based
+ * on desired generations to keep, then create snapshots.
+ *
+ * @param {string} id - AWS owner ID.
+ * @param {boolean} dryRun - True if "dry run" (meaning: no action taken).
+ */
+async function runPruningAndSnapshots(id, dryRun) {
   try {
-    const ec2InstObj = await f.getInstanceMetadata(ownerId);
-    printVerboseChatter(verbose, ec2InstObj, 'AWS response: EC2 instances');
-    const bkupObj = await f.buildBkupObj(ec2InstObj);
-    printVerboseChatter(verbose, bkupObj, 'Backup object');
-    const snapObj = await f.getSnapshotMetadata(ownerId);
-    printVerboseChatter(verbose, snapObj, 'AWS response: snapshots');
-    const pruneList = await f.buildPruneList(bkupObj, snapObj);
-    printVerboseChatter(verbose, pruneList, 'Prune list');
+    const ec2Instances = await aws.getEc2Instances(id);
+    const snapshots = await aws.getSnapshots(id);
+    const volInfo = munge.buildVolObjFromAwsResponse(ec2Instances);
+    const snapshotsToPrune = munge.buildPruneList(volInfo, snapshots);
     if (dryRun) {
-      console.log('Dry run complete (no pruning, no snapshots)');
-    } else {
-      let volIds;
-      for (let i = 0; i < pruneList.length; i++) {
-        let snapId = pruneList[i];
-        await f.pruneSnapshot(snapId);
-        console.log('Deleting snapshot ' + snapId);
-      }
-      volIds = Object.keys(bkupObj);
-      for (let i = 0; i < volIds.length; i++) {
-        let volId = volIds[i];
-        await f.createSnapshot(volId, bkupObj[volId]);
-        console.log('Creating snapshot for volume ' + volId);
-      }
+      console.log('DRY RUN\n\nSnapshots that would be pruned:');
+      console.dir(snapshotsToPrune);
+      console.log('Volumes that would be snapshotted:');
+      console.dir(Object.keys(volInfo));
+      return;
+    }
+    for (let i = 0; i < snapshotsToPrune.length; i++) {
+      const snapId = snapshotsToPrune[i];
+      console.log(`Deleting snapshot ${snapId}`);
+      await aws.pruneSnapshot(snapId);
+    }
+    const volIds = Object.keys(volInfo);
+    for (let i = 0; i < volIds.length; i++) {
+      const volId = volIds[i];
+      console.log('Creating snapshot for volume ' + volId);
+      await aws.createSnapshot(volId, volInfo[volId]);
     }
   } catch (err) {
     console.error(err);
@@ -109,11 +63,13 @@ async function runBackupsAndPruning(ownerId, verbose, dryRun) {
 //                      MAIN LOGIC
 // ----------------------------------------------------------------------------
 
-let cliObj = parseCliArgs();
+// Remove the special '_' key (used by the minimist library)
+delete argv['_'];
+const cliObj = args.processCliArgs(argv);
 
 if (cliObj.help || !cliObj.ownerId) {
   printUsage();
   process.exit(1);
 }
 
-runBackupsAndPruning(cliObj.ownerId, cliObj.verbose, cliObj.dryRun);
+runPruningAndSnapshots(cliObj.ownerId, cliObj.dryRun);

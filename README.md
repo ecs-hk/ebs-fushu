@@ -12,44 +12,47 @@ Now all EBS volumes that are attached to this EC2 instance will have snapshots c
 
 1. Download and install [Node.js](https://nodejs.org/) LTS
 2. Clone this repository
-3. Install dependences: `cd ebs-fushu && npm install --production`
+3. Install dependencies:
 
-## Set up environment
-
-Export Node-related environment variables, a la:
 ```bash
-_node=/path/to/node-v12.x.y
-export NODE_PATH=${_node}/lib/node_modules
-export PATH=${_node}/bin:$PATH
+cd ebs-fushu
+npm install --production
+npm audit fix
 ```
 
-Export AWS variables (or `aws configure` instead if you'd like):
+## Prepare environment
+
+Export AWS environment variables:
+
 ```bash
 export AWS_ACCESS_KEY_ID='xx'
 export AWS_SECRET_ACCESS_KEY='zz'
 export AWS_REGION='us-east-1'
+# Optionally enable debug messages
+export DEBUG='ebs-fushu:*'
 ```
 
-## Run
+## Run linting and unit tests
 
-Unit tests:
 ```bash
 npm test
 ```
 
-Dry run, to confirm AWS account permissions:
+## Dry run
+
+With dry run, no snapshots will be pruned and no snapshots will be created.
+
 ```bash
 # Use _your_ AWS Owner ID
 node app.js --owner-id=595959xxyybb --dry-run
 ```
 
-Very chatty dry run, to view AWS responses and the list of snapshost that would be pruned:
-```bash
-# Use _your_ AWS Owner ID
-node app.js --owner-id=595959xxyybb --dry-run --verbose
-```
+## Run
 
-Now do it for real:
+Running application in normal mode:
+* Snapshots greater than the number specified in EC2 instance tag will be pruned.
+* New snapshots will be created for EC2 instances tagged appropriately.
+
 ```bash
 # Use _your_ AWS Owner ID
 node app.js --owner-id=595959xxyybb
@@ -82,7 +85,7 @@ Creating snapshot for volume vol-017d181ae88888888
 
 ![Screenshot](/README.md-img/jenkins-execshell.png?raw=true)
 
-### IAM policy
+## IAM policy
 
 The IAM service account used with ebs-fushu will need the following permissions.
 ```json
@@ -115,4 +118,4 @@ Tested with:
 
 ## Caveat
 
-Depending on your use case, the new (as of this writing) [AWS Data Lifecycle Manager](https://aws.amazon.com/about-aws/whats-new/2018/07/introducing-amazon-data-lifecycle-manager-for-ebs-snapshots/) service is a possibly simpler alternative to ebs-fushu and similar custom-written apps.
+Depending on your use case, the [AWS Data Lifecycle Manager](https://aws.amazon.com/about-aws/whats-new/2018/07/introducing-amazon-data-lifecycle-manager-for-ebs-snapshots/) service may be an alternative to ebs-fushu and similar custom-written apps.
