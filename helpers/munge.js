@@ -9,7 +9,7 @@ const app_debug = require('debug')('ebs-fushu:munge');
 const RADIX = 10;
 
 // ----------------------------------------------------------------------------
-//                      FUNCTIONS
+//                      EC2 INSTANCE MUNGE FUNCTIONS
 // ----------------------------------------------------------------------------
 
 /**
@@ -124,6 +124,23 @@ function buildVolObjFromAwsResponse(res) {
   return o;
 }
 
+// ----------------------------------------------------------------------------
+//                      SNAPSHOT MUNGE FUNCTIONS
+// ----------------------------------------------------------------------------
+
+/**
+ * Sort list of objects by StartTime (Date type) value.
+ *
+ * @param {object[]} snapshots - Snapshot information.
+ * @returns {object[]} Sorted snapshots.
+ */
+function sortByStartTime(snapshots) {
+  snapshots.sort(function(a, b) {
+    return b.StartTime - a.StartTime;
+  });
+  return snapshots;
+}
+
 /**
  * Calculate which snapshots to prune given desired number to keep.
  *
@@ -133,9 +150,6 @@ function buildVolObjFromAwsResponse(res) {
  * @returns {string} Tag value.
  */
 function buildPruneListForOneInstance(id, snapshots, generations) {
-  // AWS' response data for snapshots is sorted by creation time, newest
-  // to oldest. (If we wanted to be extra safe, we could explicitly sort
-  // before this function.)
   const l = [];
   let count = 0;
   for (let i = 0; i < snapshots.length; i++) {
@@ -162,7 +176,7 @@ function buildPruneListForOneInstance(id, snapshots, generations) {
  */
 function buildPruneList(volInfo, snapshotInfo) {
   const volIds = Object.keys(volInfo);
-  const snapshots = snapshotInfo.Snapshots;
+  const snapshots = sortByStartTime(snapshotInfo.Snapshots);
   let pruneList = [];
   for (let i = 0; i < volIds.length; i++) {
     const volId = volIds[i];
