@@ -1,4 +1,17 @@
-node_modules
-package-lock.json
-environment-vars/*
-!environment-vars/*.EXAMPLE
+# Ignore everything
+*
+# Include necessary dot-files
+!.eslintignore
+!.eslintrc
+!.gitignore
+# Include necessary files
+!LICENSE
+!app.js
+!package.json
+!package-lock.json
+!README.md
+# Include necessary directories
+!helpers
+!helpers/*.js
+!README.md-img
+!README.md-img/*.png
