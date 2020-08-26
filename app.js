@@ -46,7 +46,7 @@ async function runPruningAndSnapshots(id, dryRun) {
     for (let i = 0; i < snapshotsToPrune.length; i++) {
       const snapId = snapshotsToPrune[i];
       console.log(`Deleting snapshot ${snapId}`);
-      await aws.pruneSnapshot(snapId);
+      await aws.deleteSnapshot(snapId);
     }
     const volIds = Object.keys(volInfo);
     for (let i = 0; i < volIds.length; i++) {
