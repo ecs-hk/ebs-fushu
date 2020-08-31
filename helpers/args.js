@@ -44,6 +44,7 @@ function processCliArgs(args) {
   app_debug('Args received:');
   app_debug(args);
   if (!args || typeof args !== 'object') {
+    app_debug('Malformed args? Programmer error');
     return {help: true};
   }
   if (args.hasOwnProperty('help')) {
@@ -56,6 +57,7 @@ function processCliArgs(args) {
   }
   const o = {};
   if (args.hasOwnProperty('dry-run')) {
+    app_debug('Dry-run mode enabled');
     o.dryRun = true;
   }
   if (args.hasOwnProperty('owner-id') && args['owner-id']) {
