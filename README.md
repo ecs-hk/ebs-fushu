@@ -40,7 +40,7 @@ npm test
 
 ## Dry run
 
-With dry run, no snapshots will be pruned and no snapshots will be created.
+With dry run, no snapshots will be deleted and no snapshots will be created.
 
 ```bash
 # Use _your_ AWS Owner ID
