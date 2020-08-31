@@ -49,9 +49,9 @@ node app.js --owner-id=595959xxyybb --dry-run
 
 ## Run
 
-Running application in normal mode:
-* Snapshots greater than the number specified in EC2 instance tag will be pruned.
-* New snapshots will be created for EC2 instances tagged appropriately.
+As an example, if `tag:snapshots` is set to `6` for an EC2 instance:
+* The seventh oldest (and any older) snapshots will be deleted.
+* A snapshot will be created for each attached volume.
 
 ```bash
 # Use _your_ AWS Owner ID
