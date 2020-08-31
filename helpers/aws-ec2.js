@@ -6,6 +6,7 @@
 
 const AWS = require('aws-sdk');
 const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
+const app_debug = require('debug')('ebs-fushu:aws');
 
 const APPNAME = 'ebs-fushu';
 
@@ -100,10 +101,18 @@ function deleteSnapshot(id) {
       SnapshotId: id,
     };
     ec2.deleteSnapshot(parms, (err, data) => {
+      app_debug('AWS response');
+      app_debug(data);
       if (err) {
+        // A snapshots may legitimately be associated with an AMI, which means
+        // it can't / shouldn't be deleted. Log about it instead of throwing.
+        if (err.code === 'InvalidSnapshot.InUse') {
+          console.error(err.message);
+          resolve();
+        }
         reject(err);
       }
-      resolve(data);
+      resolve();
     });
   });
 }
@@ -138,10 +147,12 @@ function createSnapshot(id, volMeta) {
       ],
     };
     ec2.createSnapshot(parms, (err, data) => {
+      app_debug('AWS response');
+      app_debug(data);
       if (err) {
         reject(err);
       }
-      resolve(data);
+      resolve();
     });
   });
 }
