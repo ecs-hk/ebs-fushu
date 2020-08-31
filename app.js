@@ -6,9 +6,11 @@
 
 const path = require('path');
 const process = require('process');
+const app_debug = require('debug')('ebs-fushu:app');
 const argv = require('minimist')(process.argv.slice(2));
 const args = require('./helpers/args.js');
 const aws = require('./helpers/aws-ec2.js');
+const env = require('./helpers/env.js');
 const munge = require('./helpers/munge.js');
 
 // ----------------------------------------------------------------------------
@@ -32,7 +34,9 @@ function printUsage() {
  */
 async function runPruningAndSnapshots(id, dryRun) {
   try {
+    app_debug('Getting EC2 instances');
     const ec2Instances = await aws.getEc2Instances(id);
+    app_debug('Getting current snapshots');
     const snapshots = await aws.getSnapshots(id);
     const volInfo = munge.buildVolObjFromAwsResponse(ec2Instances);
     const snapshotsToPrune = munge.buildPruneList(volInfo, snapshots);
@@ -65,11 +69,16 @@ async function runPruningAndSnapshots(id, dryRun) {
 
 // Remove the special '_' key (used by the minimist library)
 delete argv['_'];
+
+// Audit CLI arguments
 const cliObj = args.processCliArgs(argv);
 
 if (cliObj.help || !cliObj.ownerId) {
   printUsage();
   process.exit(1);
 }
+
+// Audit environment
+env.checkAwsEnvironment();
 
 runPruningAndSnapshots(cliObj.ownerId, cliObj.dryRun);
