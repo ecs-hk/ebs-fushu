@@ -42,7 +42,7 @@ function checkAwsEnvironment() {
   for (let i = 0; i < names.length; i++) {
     const name = names[i];
     if (!isSetInEnv(name)) {
-      throw new Error('Set ' + name + ' in your environment');
+      throw new Error(`Set ${name} in your environment`);
     }
   }
 }
