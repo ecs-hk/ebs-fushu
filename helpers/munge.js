@@ -17,10 +17,14 @@ const RADIX = 10;
  *
  * @param {object[]} tags - EC2 instance tags.
  * @param {string} id - EC2 instance ID.
- * @returns {string} Tag value.
+ * @returns {number|null} Tag value.
  */
-function getSnapshotTagValue(tags, id) {
+function getSnapshotsTagValue(tags, id) {
   let generations = null;
+  if (!tags || !Array.isArray(tags)) {
+    app_debug(`${id} tags missing`);
+    return null;
+  }
   for (let i = 0; i < tags.length; i++) {
     if (tags[i].Key === 'snapshots') {
       generations = parseInt(tags[i].Value, RADIX);
@@ -42,26 +46,33 @@ function getSnapshotTagValue(tags, id) {
  * Get value of tag:Name.
  *
  * @param {object[]} tags - EC2 instance tags.
+ * @param {string} id - EC2 instance ID.
  * @returns {string} Tag value.
  */
-function getNameTagValue(tags) {
+function getNameTagValue(tags, id) {
+  if (!tags || !Array.isArray(tags)) {
+    app_debug(`${id} tags missing`);
+    return null;
+  }
   for (let i = 0; i < tags.length; i++) {
     if (tags[i].Key === 'Name') {
       return tags[i].Value;
     }
   }
+  app_debug(`${id} no tag:Name found`);
   return null;
 }
 
 /**
  * Format provided values and append to volume information.
  *
+ * @todo Write unit tests.
  * @param {object} volsInfo - All volume information, to be appended to.
  * @param {object[]} ebsVols - EBS volume information for an EC2 instance.
  * @param {number} snapGens - Number of rolling snapshots to keep.
  * @param {string} nameTag - Value of tag:Name for an EC2 instance.
  * @param {string} instId - EC2 instance ID.
- * @returns {string} Tag value.
+ * @returns {object} All volume information, with new addition/s.
  */
 function appendToVolObj(volsInfo, ebsVols, snapGens, nameTag, instId) {
   for (let i = 0; i < ebsVols.length; i++) {
@@ -100,6 +111,7 @@ function appendToVolObj(volsInfo, ebsVols, snapGens, nameTag, instId) {
 /**
  * Process AWS' EC2 instance response object to build an object of objects.
  *
+ * @todo Write unit tests.
  * @param {object} res - AWS response.
  * @returns {object} Formatted volume information.
  */
@@ -110,13 +122,14 @@ function buildVolObjFromAwsResponse(res) {
   for (let i = 0; i < res.Reservations.length; i++) {
     const inst = res.Reservations[i].Instances;
     for (let j = 0; j < inst.length; j++) {
-      const bkupGens = getSnapshotTagValue(inst[j].Tags, inst[j].InstanceId);
+      const tags = inst[j].Tags;
+      const instId = inst[j].InstanceId;
+      const bkupGens = getSnapshotsTagValue(tags, instId);
       // If we didn't get a legit tag:snapshots value, move on.
       if (!bkupGens) {
         continue;
       }
-      const nameTag = getNameTagValue(inst[j].Tags);
-      const instId = inst[j].InstanceId;
+      const nameTag = getNameTagValue(tags, instId);
       const ebsVols = inst[j].BlockDeviceMappings;
       o = appendToVolObj(o, ebsVols, bkupGens, nameTag, instId);
     }
@@ -129,13 +142,23 @@ function buildVolObjFromAwsResponse(res) {
 // ----------------------------------------------------------------------------
 
 /**
- * Sort list of objects by StartTime (Date type) value.
+ * Sort list of objects by StartTime (Date type) value in descending order.
  *
  * @param {object[]} snapshots - Snapshot information.
  * @returns {object[]} Sorted snapshots.
  */
 function sortByStartTime(snapshots) {
+  if (!snapshots || !Array.isArray(snapshots)) {
+    app_debug('Snapshots missing');
+    return [];
+  }
   snapshots.sort(function(a, b) {
+    if (!a.hasOwnProperty('StartTime')) {
+      throw new Error(`${a.SnapshotId} missing "StartTime" property`);
+    }
+    if (!b.hasOwnProperty('StartTime')) {
+      throw new Error(`${b.SnapshotId} missing "StartTime" property`);
+    }
     return b.StartTime - a.StartTime;
   });
   return snapshots;
@@ -150,6 +173,18 @@ function sortByStartTime(snapshots) {
  * @returns {string} Tag value.
  */
 function buildPruneListForOneInstance(id, snapshots, generations) {
+  if (!id || typeof id !== 'string') {
+    app_debug('Invalid volume ID, cannot build prune list');
+    return [];
+  }
+  if (!snapshots || !Array.isArray(snapshots)) {
+    app_debug(`${id} Invalid snapshots, cannot build prune list`);
+    return [];
+  }
+  if (isNaN(generations) || generations <= 0) {
+    app_debug(`${id} Invalid generations, cannot build prune list`);
+    return [];
+  }
   const l = [];
   let count = 0;
   for (let i = 0; i < snapshots.length; i++) {
@@ -170,6 +205,7 @@ function buildPruneListForOneInstance(id, snapshots, generations) {
 /**
  * Build list of EBS snapshots to prune for all EC2 instances.
  *
+ * @todo Write unit tests.
  * @param {object[]} volInfo - EBS volume information.
  * @param {object[]} snapshotInfo - Snapshot information.
  * @returns {string[]} List of all snapshot IDs to prune.
