@@ -20,26 +20,14 @@ const RADIX = 10;
  * @returns {number|null} Tag value.
  */
 function getSnapshotsTagValue(tags, id) {
-  let generations = null;
   if (!tags || !Array.isArray(tags)) {
     app_debug(`${id} tags missing`);
     return null;
   }
-  for (let i = 0; i < tags.length; i++) {
-    if (tags[i].Key === 'snapshots') {
-      generations = parseInt(tags[i].Value, RADIX);
-      break;
-    }
+  const o = tags.find(x => x.Key === 'snapshots');
+  if (o && o.hasOwnProperty('Value')) {
+    return parseInt(o.Value, RADIX);
   }
-  if (!generations) {
-    app_debug(`${id} no tag:snapshots found`);
-    return null;
-  }
-  if (isNaN(generations)) {
-    app_debug(`${id} tag:snapshots contains non-numeric value`);
-    return null;
-  }
-  return generations;
 }
 
 /**
@@ -54,13 +42,10 @@ function getNameTagValue(tags, id) {
     app_debug(`${id} tags missing`);
     return null;
   }
-  for (let i = 0; i < tags.length; i++) {
-    if (tags[i].Key === 'Name') {
-      return tags[i].Value;
-    }
+  const o = tags.find(x => x.Key === 'Name');
+  if (o && o.hasOwnProperty('Value')) {
+    return o.Value;
   }
-  app_debug(`${id} no tag:Name found`);
-  return null;
 }
 
 /**
@@ -75,22 +60,21 @@ function getNameTagValue(tags, id) {
  * @returns {object} All volume information, with new addition/s.
  */
 function appendToVolObj(volsInfo, ebsVols, snapGens, nameTag, instId) {
-  for (let i = 0; i < ebsVols.length; i++) {
-    const vol = ebsVols[i];
+  ebsVols.filter(x => {
     // We only deal in EBS volumes in this program. If not an EBS volume,
     // or if no string-based vol ID (for some strange reason), skip it.
-    if (typeof vol !== 'object' || !vol.hasOwnProperty('Ebs')) {
+    if (typeof x !== 'object' || !x.hasOwnProperty('Ebs')) {
       app_debug(`Missing Ebs key for ${instId}`);
-      continue;
+      return false;
     }
-    if (typeof vol.Ebs !== 'object' || !vol.Ebs.hasOwnProperty('VolumeId')) {
+    if (typeof x.Ebs !== 'object' || !x.Ebs.hasOwnProperty('VolumeId')) {
       app_debug(`Missing VolumeId key for ${instId}`);
-      continue;
+      return false;
     }
-    const volId = vol.Ebs.VolumeId;
+    const volId = x.Ebs.VolumeId;
     if (typeof volId !== 'string' || volId.length < 8) {
       app_debug(`Malformed VolumeId for ${instId}`);
-      continue;
+      return false;
     }
     // Per AWS official docs, an EBS volume can only be mounted to a single
     // EC2 instance, ergo we should never encounter a duplicate vol ID during
@@ -98,13 +82,13 @@ function appendToVolObj(volsInfo, ebsVols, snapGens, nameTag, instId) {
     // https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumes.html
     volsInfo[volId] = {
       instId: instId,
-      devName: vol.DeviceName,
+      devName: x.DeviceName,
       nameTag: nameTag,
       bkupGens: snapGens,
     };
     app_debug(`Volume information for ${volId}:`);
     app_debug(volsInfo[volId]);
-  }
+  });
   return volsInfo;
 }
 
@@ -118,23 +102,20 @@ function appendToVolObj(volsInfo, ebsVols, snapGens, nameTag, instId) {
 function buildVolObjFromAwsResponse(res) {
   // Note that vol IDs are _only_ added to this structure if they
   // have tag:snapshots = n set, where 'n' is an integer.
-  let o = {};
-  for (let i = 0; i < res.Reservations.length; i++) {
-    const inst = res.Reservations[i].Instances;
-    for (let j = 0; j < inst.length; j++) {
-      const tags = inst[j].Tags;
-      const instId = inst[j].InstanceId;
+  let volsInfo = {};
+  res.Reservations.forEach(x => {
+    x.Instances.filter(y => {
+      const tags = y.Tags;
+      const instId = y.InstanceId;
       const bkupGens = getSnapshotsTagValue(tags, instId);
       // If we didn't get a legit tag:snapshots value, move on.
-      if (!bkupGens) {
-        continue;
-      }
+      if (!bkupGens) return false;
       const nameTag = getNameTagValue(tags, instId);
-      const ebsVols = inst[j].BlockDeviceMappings;
-      o = appendToVolObj(o, ebsVols, bkupGens, nameTag, instId);
-    }
-  }
-  return o;
+      const ebsVols = y.BlockDeviceMappings;
+      volsInfo = appendToVolObj(volsInfo, ebsVols, bkupGens, nameTag, instId);
+    });
+  });
+  return volsInfo;
 }
 
 // ----------------------------------------------------------------------------
