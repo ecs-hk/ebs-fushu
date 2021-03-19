@@ -12,55 +12,48 @@ const rewire = require('rewire');
 const pf = rewire('./args.js');
 
 // Map rewired, private functions to friendlier names
-const hasGoodArgs = pf.__get__('hasGoodArgs');
+const isRegularObject = pf.__get__('isRegularObject');
 const processCliArgs = pf.__get__('processCliArgs');
 
 // --------------------------------------------------------------------------
 //                      MOCHA TESTS
 // --------------------------------------------------------------------------
 
-describe('Ensure object keys are present in array', function() {
-  const func = hasGoodArgs;
+describe('Test for regular, non-empty object', function() {
+  const func = isRegularObject;
   it('should return true', function() {
-    const o = {baz: null, boo: null};
-    const l = ['baz', 'boo'];
-    const result = func(o, l);
+    const o = {foo: 'baz'};
+    const result = func(o);
+    assert.equal(result, true);
+  });
+  it('should return true', function() {
+    const o = {foo: null};
+    const result = func(o);
+    assert.equal(result, true);
+  });
+  it('should return true', function() {
+    const o = {foo: 'baz', fuz: 'baz'};
+    const result = func(o);
     assert.equal(result, true);
   });
   it('should return true', function() {
     const o = {};
-    const l = ['baz', 'boo'];
-    const result = func(o, l);
+    const result = func(o);
     assert.equal(result, true);
   });
   it('should return false', function() {
-    const o = {baz: null, boo: null, fuz: null};
-    const l = ['baz', 'boo'];
-    const result = func(o, l);
+    const o = ['foo'];
+    const result = func(o);
+    assert.equal(result, false);
+  });
+  it('should return false', function() {
+    const o = 'foo';
+    const result = func(o);
     assert.equal(result, false);
   });
   it('should return false', function() {
     const o = null;
-    const l = ['baz', 'boo'];
-    const result = func(o, l);
-    assert.equal(result, false);
-  });
-  it('should return false', function() {
-    const o = {baz: null, boo: null};
-    const l = null;
-    const result = func(o, l);
-    assert.equal(result, false);
-  });
-  it('should return false', function() {
-    const o = {baz: null};
-    const l = [];
-    const result = func(o, l);
-    assert.equal(result, false);
-  });
-  it('should return false', function() {
-    const o = 'baz';
-    const l = ['baz', 'boo'];
-    const result = func(o, l);
+    const result = func(o);
     assert.equal(result, false);
   });
 });
@@ -110,17 +103,17 @@ describe('Process CLI args', function() {
   });
   it('should return object with known key/value', function() {
     const o = 'hi';
-    const result = func(o);
-    assert.equal(result.help, true);
+    const err = new Error('Contact dev: CLI arg handling is broken');
+    assert.throws(function() { func(o); }, err);
   });
   it('should return object with known key/value', function() {
     const o = ['yes', 'ok'];
-    const result = func(o);
-    assert.equal(result.help, true);
+    const err = new Error('Contact dev: CLI arg handling is broken');
+    assert.throws(function() { func(o); }, err);
   });
   it('should return object with known key/value', function() {
     const o = null;
-    const result = func(o);
-    assert.equal(result.help, true);
+    const err = new Error('Contact dev: CLI arg handling is broken');
+    assert.throws(function() { func(o); }, err);
   });
 });

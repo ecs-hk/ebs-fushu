@@ -11,25 +11,15 @@ const app_debug = require('debug')('ebs-fushu:args');
 // ----------------------------------------------------------------------------
 
 /**
- * Compare object keys with a list of known args.
+ * Determine whether a variable is a regular (non-array) object with at least
+ * one key.
  *
- * @param {object} args - CLI args.
- * @param {string[]} validArgs - Known valid args.
- * @returns {boolean} True if invalid args found.
+ * @param {*} suspect - Variable of unknown type.
+ * @returns {boolean} True if a regular object with one or more keys.
  */
-function hasGoodArgs(args, validArgs) {
-  if (!args || typeof args !== 'object') {
+function isRegularObject(suspect) {
+  if (!suspect || typeof suspect !== 'object' || Array.isArray(suspect)) {
     return false;
-  }
-  if (!validArgs || !Array.isArray(validArgs)) {
-    return false;
-  }
-  const l = Object.getOwnPropertyNames(args);
-  for (let i = 0; i < l.length; i++) {
-    app_debug(`Checking whether "${l[i]}" is a valid CLI arg`);
-    if (!validArgs.includes(l[i])) {
-      return false;
-    }
   }
   return true;
 }
@@ -41,32 +31,25 @@ function hasGoodArgs(args, validArgs) {
  * @returns {object} Processed args.
  */
 function processCliArgs(args) {
-  app_debug('Args received:');
   app_debug(args);
-  if (!args || typeof args !== 'object') {
-    app_debug('Malformed args? Programmer error');
+  if (!isRegularObject(args)) {
+    throw new Error('Contact dev: CLI arg handling is broken');
+  }
+  if (Object.keys(args).length === 0) {
     return {help: true};
   }
-  if (args.hasOwnProperty('help')) {
+  // Process CLI arg object, and assume help is needed if any unknown args
+  // were received.
+  const mapped = Object.entries(args).map(([k, v]) => {
+    // Coerce (possibly numeric) owner ID to string.
+    if (k === 'owner-id') return {ownerId: '' + v};
+    if (k === 'dry-run') return {dryRun: true};
     return {help: true};
-  }
-  const knownArgs = ['help', 'dry-run', 'owner-id'];
-  if (!hasGoodArgs(args, knownArgs)) {
-    app_debug('At least one unknown arg received');
-    return {help: true};
-  }
-  const o = {};
-  if (args.hasOwnProperty('dry-run')) {
-    app_debug('Dry-run mode enabled');
-    o.dryRun = true;
-  }
-  if (args.hasOwnProperty('owner-id') && args['owner-id']) {
-    // Coerce a (potentially all-numeric) number to string.
-    o.ownerId = '' + args['owner-id'];
-  } else {
-    return {help: true};
-  }
-  return o;
+  });
+  // Spread the array of objects and combine into one object.
+  const combined = Object.assign(...mapped);
+  app_debug(combined);
+  return combined;
 }
 
 // ----------------------------------------------------------------------------

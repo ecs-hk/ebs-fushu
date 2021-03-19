@@ -14,11 +14,11 @@
     "url": "https://github.com/ecs-hk/ebs-fushu.git"
   },
   "dependencies": {
-    "aws-sdk": "^2.739.0",
-    "eslint": "^7.7.0",
+    "aws-sdk": "^2.852.0",
+    "eslint": "^7.20.0",
     "eslint-config-strongloop": "^2.1.0",
-    "eslint-plugin-jsdoc": "^30.3.0",
-    "mocha": "^8.1.2",
+    "eslint-plugin-jsdoc": "^32.2.0",
+    "mocha": "^8.3.0",
     "rewire": "^5.0.0"
   }
 }

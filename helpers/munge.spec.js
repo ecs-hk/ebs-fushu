@@ -31,7 +31,7 @@ describe('Retrieve "snapshot" tag value', function() {
     ];
     const id = 'id-buz';
     const result = func(lob, id);
-    assert.equal(result, 10);
+    assert.strictEqual(result, 10);
   });
   it('should return a known number', function() {
     const lob = [
@@ -40,7 +40,7 @@ describe('Retrieve "snapshot" tag value', function() {
     ];
     const id = 'id-buz';
     const result = func(lob, id);
-    assert.equal(result, 10);
+    assert.strictEqual(result, 10);
   });
   it('should return null', function() {
     const lob = [
@@ -82,7 +82,7 @@ describe('Retrieve "Name" tag value', function() {
     ];
     const id = 'id-buz';
     const result = func(lob, id);
-    assert.equal(result, 'webhost');
+    assert.strictEqual(result, 'webhost');
   });
   it('should return null', function() {
     const lob = [
