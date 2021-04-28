@@ -1,5 +1,5 @@
 {
-  "extends": "strongloop",
+  "extends": ["plugin:node/recommended"],
   "env": {
     "es2020": true
   },
