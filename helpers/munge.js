@@ -1,10 +1,12 @@
 'use strict';
 
+/* eslint consistent-return: 0 */
+
 // ----------------------------------------------------------------------------
 //                      GLOBAL VARIABLES
 // ----------------------------------------------------------------------------
 
-const app_debug = require('debug')('ebs-fushu:munge');
+const appDebug = require('debug')('ebs-fushu:munge');
 
 const RADIX = 10;
 
@@ -21,7 +23,7 @@ const RADIX = 10;
  */
 function getSnapshotsTagValue(tags, id) {
   if (!tags || !Array.isArray(tags)) {
-    app_debug(`${id} tags missing`);
+    appDebug(`${id} tags missing`);
     return null;
   }
   const o = tags.find(x => x.Key === 'snapshots');
@@ -39,7 +41,7 @@ function getSnapshotsTagValue(tags, id) {
  */
 function getNameTagValue(tags, id) {
   if (!tags || !Array.isArray(tags)) {
-    app_debug(`${id} tags missing`);
+    appDebug(`${id} tags missing`);
     return null;
   }
   const o = tags.find(x => x.Key === 'Name');
@@ -64,16 +66,16 @@ function appendToVolObj(volsInfo, ebsVols, snapGens, nameTag, instId) {
     // We only deal in EBS volumes in this program. If not an EBS volume,
     // or if no string-based vol ID (for some strange reason), skip it.
     if (typeof x !== 'object' || !x.hasOwnProperty('Ebs')) {
-      app_debug(`Missing Ebs key for ${instId}`);
+      appDebug(`Missing Ebs key for ${instId}`);
       return false;
     }
     if (typeof x.Ebs !== 'object' || !x.Ebs.hasOwnProperty('VolumeId')) {
-      app_debug(`Missing VolumeId key for ${instId}`);
+      appDebug(`Missing VolumeId key for ${instId}`);
       return false;
     }
     const volId = x.Ebs.VolumeId;
     if (typeof volId !== 'string' || volId.length < 8) {
-      app_debug(`Malformed VolumeId for ${instId}`);
+      appDebug(`Malformed VolumeId for ${instId}`);
       return false;
     }
     // Per AWS official docs, an EBS volume can only be mounted to a single
@@ -86,8 +88,8 @@ function appendToVolObj(volsInfo, ebsVols, snapGens, nameTag, instId) {
       nameTag: nameTag,
       bkupGens: snapGens,
     };
-    app_debug(`Volume information for ${volId}:`);
-    app_debug(volsInfo[volId]);
+    appDebug(`Volume information for ${volId}:`);
+    appDebug(volsInfo[volId]);
   });
   return volsInfo;
 }
@@ -130,7 +132,7 @@ function buildVolObjFromAwsResponse(res) {
  */
 function sortByStartTime(snapshots) {
   if (!snapshots || !Array.isArray(snapshots)) {
-    app_debug('Snapshots missing');
+    appDebug('Snapshots missing');
     return [];
   }
   snapshots.sort(function(a, b) {
@@ -155,15 +157,15 @@ function sortByStartTime(snapshots) {
  */
 function buildPruneListForOneInstance(id, snapshots, generations) {
   if (!id || typeof id !== 'string') {
-    app_debug('Invalid volume ID, cannot build prune list');
+    appDebug('Invalid volume ID, cannot build prune list');
     return [];
   }
   if (!snapshots || !Array.isArray(snapshots)) {
-    app_debug(`${id} Invalid snapshots, cannot build prune list`);
+    appDebug(`${id} Invalid snapshots, cannot build prune list`);
     return [];
   }
   if (isNaN(generations) || generations <= 0) {
-    app_debug(`${id} Invalid generations, cannot build prune list`);
+    appDebug(`${id} Invalid generations, cannot build prune list`);
     return [];
   }
   const l = [];
@@ -176,7 +178,7 @@ function buildPruneListForOneInstance(id, snapshots, generations) {
     count++;
     if (count > generations) {
       const snapId = snapshots[i].SnapshotId;
-      app_debug(`Adding snapshot ${count} (${snapId}) to prune list`);
+      appDebug(`Adding snapshot ${count} (${snapId}) to prune list`);
       l.push(snapId);
     }
   }
@@ -198,7 +200,7 @@ function buildPruneList(volInfo, snapshotInfo) {
   for (let i = 0; i < volIds.length; i++) {
     const volId = volIds[i];
     const generations = volInfo[volId]['bkupGens'];
-    app_debug(`${volId} to keep ${generations} generations of snapshots`);
+    appDebug(`${volId} to keep ${generations} generations of snapshots`);
     const l = buildPruneListForOneInstance(volId, snapshots, generations);
     pruneList = pruneList.concat(l);
   }

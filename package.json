@@ -15,9 +15,11 @@
   },
   "dependencies": {
     "aws-sdk": "^2.852.0",
+    "debug": "^4.3.1",
     "eslint": "^7.20.0",
-    "eslint-config-strongloop": "^2.1.0",
     "eslint-plugin-jsdoc": "^32.2.0",
+    "eslint-plugin-node": "^11.1.0",
+    "minimist": "^1.2.5",
     "mocha": "^8.3.0",
     "rewire": "^5.0.0"
   }

@@ -1,12 +1,14 @@
 'use strict';
 
+/* eslint no-process-exit: 0 */
+
 // ----------------------------------------------------------------------------
 //                      GLOBAL VARIABLES
 // ----------------------------------------------------------------------------
 
 const path = require('path');
 const process = require('process');
-const app_debug = require('debug')('ebs-fushu:app');
+const appDebug = require('debug')('ebs-fushu:app');
 const argv = require('minimist')(process.argv.slice(2));
 const args = require('./helpers/args.js');
 const aws = require('./helpers/aws-ec2.js');
@@ -34,9 +36,9 @@ function printUsage() {
  */
 async function runPruningAndSnapshots(id, dryRun) {
   try {
-    app_debug('Getting EC2 instances');
+    appDebug('Getting EC2 instances');
     const ec2Instances = await aws.getEc2Instances(id);
-    app_debug('Getting current snapshots');
+    appDebug('Getting current snapshots');
     const snapshots = await aws.getSnapshots(id);
     const volInfo = munge.buildVolObjFromAwsResponse(ec2Instances);
     const snapshotsToPrune = munge.buildPruneList(volInfo, snapshots);

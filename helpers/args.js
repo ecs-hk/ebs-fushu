@@ -4,7 +4,7 @@
 //                      GLOBAL VARIABLES
 // ----------------------------------------------------------------------------
 
-const app_debug = require('debug')('ebs-fushu:args');
+const appDebug = require('debug')('ebs-fushu:args');
 
 // ----------------------------------------------------------------------------
 //                      FUNCTIONS
@@ -31,7 +31,7 @@ function isRegularObject(suspect) {
  * @returns {object} Processed args.
  */
 function processCliArgs(args) {
-  app_debug(args);
+  appDebug(args);
   if (!isRegularObject(args)) {
     throw new Error('Contact dev: CLI arg handling is broken');
   }
@@ -48,7 +48,7 @@ function processCliArgs(args) {
   });
   // Spread the array of objects and combine into one object.
   const combined = Object.assign(...mapped);
-  app_debug(combined);
+  appDebug(combined);
   return combined;
 }
 
