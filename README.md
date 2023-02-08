@@ -113,7 +113,7 @@ The IAM service account used with ebs-fushu will need the following permissions.
 
 Tested with:
 
-- Node.js v18 LTS
+- Node.js v14 LTS
 - AWS SDK for Javascript (API Version: 2016-11-15)
 
 ## Caveat
