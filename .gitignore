@@ -4,6 +4,7 @@
 !.eslintignore
 !.eslintrc
 !.gitignore
+!.npmrc
 # Include necessary files
 !LICENSE
 !app.js
@@ -11,6 +12,8 @@
 !package-lock.json
 !README.md
 # Include necessary directories
+!bin
+!bin/run-cli
 !helpers
 !helpers/*.js
 !README.md-img

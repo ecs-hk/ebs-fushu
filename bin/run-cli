@@ -1,0 +1,54 @@
+#!/bin/bash
+
+set -u
+set -o pipefail
+
+# -------------------------------------------------------------------------- #
+#                       VARIABLE DEFINITION
+# -------------------------------------------------------------------------- #
+
+readonly _env_file='.env'
+
+export NODE_ENV='production'
+
+# -------------------------------------------------------------------------- #
+#                       FUNCTIONS
+# -------------------------------------------------------------------------- #
+
+errout() {
+        local _msg="${0##*/} error: ${1}"
+        printf '%s\n' "${_msg}"
+        exit 1
+}
+
+check_path_for_nodejs() {
+        local _i
+
+        for _i in npm node ; do
+                which "${_i}" >/dev/null 2>&1
+
+                if [ ${?} -ne 0 ] ; then
+                        errout "${_i} not found in PATH"
+                fi
+        done
+}
+
+source_in_env() {
+        . "${_env_file}" >/dev/null 2>&1
+
+        if [ ${?} -ne 0 ] ; then
+                errout "Unable to source in ${_env_file}"
+        fi
+}
+
+# -------------------------------------------------------------------------- #
+#                       MAIN LOGIC
+# -------------------------------------------------------------------------- #
+
+check_path_for_nodejs
+source_in_env
+
+node app.js "${@}"
+_rc=${?}
+
+exit ${_rc}
