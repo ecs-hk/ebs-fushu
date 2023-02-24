@@ -16,7 +16,7 @@ Now all EBS volumes that are attached to this EC2 instance will have snapshots c
 
 ```bash
 cd ebs-fushu
-npm install --production
+npm ci
 npm audit fix
 ```
 
@@ -65,26 +65,6 @@ Creating snapshot for volume vol-05dc1747dcccbbbbb
 Creating snapshot for volume vol-017d181ae88888888
 ```
 
-## Tips
-
-### Jenkins integration
-
-1. Configure build job parameters for `AWS_ACCESS_KEY_ID` (string parameter), `AWS_SECRET_ACCESS_KEY` (password parameter), and `AWS_REGION` (string parameter). See example below.
-2. Set repository URL to this repo.
-3. Set a periodic schedule.
-4. Point the build job to a Node.js installation. (Install Node.js on the build server if not already done.)
-5. Add "execute shell" build steps. See example below.
-
-#### Parameters
-
-![Screenshot](/README.md-img/jenkins-parm-accesskey.png?raw=true)
-
-![Screenshot](/README.md-img/jenkins-parm-secret.png?raw=true)
-
-#### Build
-
-![Screenshot](/README.md-img/jenkins-execshell.png?raw=true)
-
 ## IAM policy
 
 The IAM service account used with ebs-fushu will need the following permissions.
@@ -113,7 +93,7 @@ The IAM service account used with ebs-fushu will need the following permissions.
 
 Tested with:
 
-- Node.js v14 LTS
+- Node.js v18 LTS
 - AWS SDK for Javascript (API Version: 2016-11-15)
 
 ## Caveat
