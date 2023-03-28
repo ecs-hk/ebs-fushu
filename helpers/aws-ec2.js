@@ -141,7 +141,7 @@ async function createSnapshot(id, volMeta) {
         },
       ],
     };
-    const command = new CreateSnapshotCommand(parms);
+    const command = new ec2.CreateSnapshotCommand(parms);
     await client.send(command);
   } catch (err) {
     throw err;
