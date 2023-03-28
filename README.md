@@ -53,6 +53,8 @@ As an example, if `tag:snapshots` is set to `6` for an EC2 instance:
 * The seventh oldest (and any older) snapshots will be deleted.
 * A snapshot will be created for each attached volume.
 
+In the following output, three EC2 instances (with one attached EBS volume each) are processed. For each EBS volume, one snapshot is deleted and a new one is created.
+
 ```bash
 # Use _your_ AWS Owner ID
 node app.js --owner-id=595959xxyybb
@@ -98,4 +100,4 @@ Tested with:
 
 ## Caveat
 
-Depending on your use case, the [AWS Data Lifecycle Manager](Amazon Data Lifecycle Manager for EBS Snapshots) service may be an alternative to `ebs-fushu` and similar custom-written apps.
+Depending on your use case, the [Amazon Data Lifecycle Manager for EBS Snapshots](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/snapshot-lifecycle.html) service may be an alternative to `ebs-fushu` and similar custom-written apps.
