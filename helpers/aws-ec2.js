@@ -89,7 +89,6 @@ async function getSnapshots(id) {
  * Delete a snapshot.
  *
  * @param {string} id - Snapshot ID.
- * @returns {Promise<object>} Response from AWS.
  */
 async function deleteSnapshot(id) {
   try {
@@ -101,10 +100,15 @@ async function deleteSnapshot(id) {
       SnapshotId: id,
     };
     const command = new ec2.DeleteSnapshotCommand(parms);
-    const res = await client.send(command);
-    return res;
+    await client.send(command);
   } catch (err) {
-    throw err;
+    // A snapshot may legitimately be associated with an AMI, which means
+    // it can't / shouldn't be deleted. Log about it instead of throwing.
+    if (err.Code === 'InvalidSnapshot.InUse') {
+      console.error(err.message);
+    } else {
+      throw err;
+    }
   }
 }
 
@@ -113,7 +117,6 @@ async function deleteSnapshot(id) {
  *
  * @param {string} id - EBS volume ID.
  * @param {object} volMeta - Metadata about EBS volume.
- * @returns {Promise<object>} Response from AWS.
  */
 async function createSnapshot(id, volMeta) {
   try {
@@ -139,8 +142,7 @@ async function createSnapshot(id, volMeta) {
       ],
     };
     const command = new CreateSnapshotCommand(parms);
-    const res = await client.send(command);
-    return res;
+    await client.send(command);
   } catch (err) {
     throw err;
   }
