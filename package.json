@@ -1,6 +1,6 @@
 {
   "name": "ebs-fushu",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -10,7 +10,7 @@
     "test": "mocha 'helpers/*.spec.js'"
   },
   "author": "Erik Schwartz",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "description": "Automate AWS EBS snapshots with an EC2 tag",
   "repository": {
     "type": "git",
