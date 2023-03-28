@@ -4,8 +4,7 @@
 //                      GLOBAL VARIABLES
 // ----------------------------------------------------------------------------
 
-const AWS = require('aws-sdk');
-const ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
+const ec2 = require('@aws-sdk/client-ec2');
 const appDebug = require('debug')('ebs-fushu:aws');
 
 const APPNAME = 'ebs-fushu';
@@ -44,21 +43,21 @@ function isVolumeMetadataComplete(o) {
  * @param {string} id - AWS owner ID.
  * @returns {Promise<object>} EC2 instances.
  */
-function getEc2Instances(id) {
-  return new Promise((resolve, reject) => {
+async function getEc2Instances(id) {
+  try {
     if (!id) {
-      reject(new Error('Owner ID must be specified'));
+      throw new Error('Owner ID must be specified');
     }
+    const client = new ec2.EC2Client();
     const parms = {
       Filters: [{Name: 'owner-id', Values: [id]}],
     };
-    ec2.describeInstances(parms, (err, data) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(data);
-    });
-  });
+    const command = new ec2.DescribeInstancesCommand(parms);
+    const res = await client.send(command);
+    return res;
+  } catch (err) {
+    throw err;
+  }
 }
 
 /**
@@ -67,23 +66,23 @@ function getEc2Instances(id) {
  * @param {string} id - AWS owner ID.
  * @returns {Promise<object>} EBS snapshots.
  */
-function getSnapshots(id) {
-  return new Promise((resolve, reject) => {
+async function getSnapshots(id) {
+  try {
     if (!id) {
-      reject(new Error('Owner ID must be specified'));
+      throw new Error('Owner ID must be specified');
     }
+    const client = new ec2.EC2Client();
     const parms = {
       Filters: [{Name: 'status', Values: ['completed']}],
       OwnerIds: [id],
       MaxResults: 1000,
     };
-    ec2.describeSnapshots(parms, (err, data) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(data);
-    });
-  });
+    const command = new ec2.DescribeSnapshotsCommand(parms);
+    const res = await client.send(command);
+    return res;
+  } catch (err) {
+    throw err;
+  }
 }
 
 /**
@@ -92,29 +91,21 @@ function getSnapshots(id) {
  * @param {string} id - Snapshot ID.
  * @returns {Promise<object>} Response from AWS.
  */
-function deleteSnapshot(id) {
-  return new Promise((resolve, reject) => {
+async function deleteSnapshot(id) {
+  try {
     if (!id) {
-      reject(new Error('Snapshot ID must be specified'));
+      throw new Error('Snapshot ID must be specified');
     }
+    const client = new ec2.EC2Client();
     const parms = {
       SnapshotId: id,
     };
-    ec2.deleteSnapshot(parms, (err, data) => {
-      appDebug('AWS response');
-      appDebug(data);
-      if (err) {
-        // A snapshots may legitimately be associated with an AMI, which means
-        // it can't / shouldn't be deleted. Log about it instead of throwing.
-        if (err.code === 'InvalidSnapshot.InUse') {
-          console.error(err.message);
-          resolve();
-        }
-        reject(err);
-      }
-      resolve();
-    });
-  });
+    const command = new ec2.DeleteSnapshotCommand(parms);
+    const res = await client.send(command);
+    return res;
+  } catch (err) {
+    throw err;
+  }
 }
 
 /**
@@ -124,17 +115,18 @@ function deleteSnapshot(id) {
  * @param {object} volMeta - Metadata about EBS volume.
  * @returns {Promise<object>} Response from AWS.
  */
-function createSnapshot(id, volMeta) {
-  return new Promise((resolve, reject) => {
+async function createSnapshot(id, volMeta) {
+  try {
     if (!id) {
-      reject(new Error('Volume ID must be specified'));
+      throw new Error('Volume ID must be specified');
     }
     if (!isVolumeMetadataComplete(volMeta)) {
-      reject(new Error('Complete volume information must be specified'));
+      throw new Error('Complete volume information must be specified');
     }
+    const client = new ec2.EC2Client();
     const parms = {
       VolumeId: id,
-      Description: 'Created by ' + APPNAME,
+      Description: `Created by ${APPNAME}`,
       TagSpecifications: [
         {
           ResourceType: 'snapshot',
@@ -146,15 +138,12 @@ function createSnapshot(id, volMeta) {
         },
       ],
     };
-    ec2.createSnapshot(parms, (err, data) => {
-      appDebug('AWS response');
-      appDebug(data);
-      if (err) {
-        reject(err);
-      }
-      resolve();
-    });
-  });
+    const command = new CreateSnapshotCommand(parms);
+    const res = await client.send(command);
+    return res;
+  } catch (err) {
+    throw err;
+  }
 }
 
 // ----------------------------------------------------------------------------

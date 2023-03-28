@@ -1,6 +1,6 @@
 {
   "name": "ebs-fushu",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -17,7 +17,7 @@
     "url": "https://github.com/ecs-hk/ebs-fushu.git"
   },
   "dependencies": {
-    "aws-sdk": "^2.852.0",
+    "@aws-sdk/client-ec2": "^3.300.0",
     "debug": "^4.3.1",
     "eslint": "^7.20.0",
     "eslint-plugin-jsdoc": "^32.2.0",
