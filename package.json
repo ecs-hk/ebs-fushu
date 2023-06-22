@@ -1,6 +1,6 @@
 {
   "name": "ebs-fushu",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -17,13 +17,12 @@
     "url": "https://github.com/ecs-hk/ebs-fushu.git"
   },
   "dependencies": {
-    "@aws-sdk/client-ec2": "^3.300.0",
+    "@aws-sdk/client-ec2": "^3.357.0",
     "debug": "^4.3.1",
     "eslint": "^7.20.0",
     "eslint-plugin-jsdoc": "^32.2.0",
-    "eslint-plugin-node": "^11.1.0",
     "minimist": "^1.2.6",
     "mocha": "^9.2.2",
-    "rewire": "^5.0.0"
+    "rewire": "^6.0.0"
   }
 }
