@@ -1,6 +1,6 @@
 {
   "name": "ebs-fushu",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -14,7 +14,7 @@
   "description": "Automate AWS EBS snapshots with an EC2 tag",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ecs-hk/ebs-fushu.git"
+    "url": "https://github.com/ecs-hk/ebs-fushu"
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.357.0",
