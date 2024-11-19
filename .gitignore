@@ -1,11 +1,10 @@
 # Ignore everything
 *
 # Include necessary dot-files
-!.eslintignore
-!.eslintrc
 !.gitignore
 !.npmrc
 # Include necessary files
+!eslint.config.mjs
 !LICENSE
 !app.js
 !package.json
