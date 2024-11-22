@@ -30,6 +30,7 @@ function getSnapshotsTagValue(tags, id) {
   if (o && o.hasOwnProperty('Value')) {
     return parseInt(o.Value, RADIX);
   }
+  return null;
 }
 
 /**
@@ -48,6 +49,7 @@ function getNameTagValue(tags, id) {
   if (o && o.hasOwnProperty('Value')) {
     return o.Value;
   }
+  return null;
 }
 
 /**
