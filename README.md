@@ -91,13 +91,8 @@ The IAM service account used with ebs-fushu will need the following permissions.
 }
 ```
 
-## Compatibility
+******
 
-Tested with:
-
-- [Node.js v18 LTS](https://nodejs.org/en/blog/announcements/v18-release-announce)
-- [AWS SDK for Javascript v3](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/index.html)
-
-## Caveat
+# Caveat
 
 Depending on your use case, the [Amazon Data Lifecycle Manager for EBS Snapshots](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/snapshot-lifecycle.html) service may be an alternative to `ebs-fushu` and similar custom-written apps.
