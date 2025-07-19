@@ -1,0 +1,30 @@
+name: Lint and test
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+env:
+  NODE_ENV: production
+
+jobs:
+  myci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node-version: [22.x]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{matrix.node-version}}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{matrix.node-version}}
+      - name: Install packages
+        shell: bash
+        run: |
+          npm ci
+      - name: Run linting and unit tests
+        shell: bash
+        run: |
+          npm test
