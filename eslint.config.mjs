@@ -9,6 +9,8 @@ export default [{
 
     languageOptions: {
         globals: {},
+        ecmaVersion: 2020,
+        sourceType: "script",
     },
 
     rules: {
