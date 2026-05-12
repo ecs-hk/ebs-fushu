@@ -4,8 +4,6 @@ on:
     types:
       - opened
       - reopened
-env:
-  NODE_ENV: production
 
 jobs:
   myci:
