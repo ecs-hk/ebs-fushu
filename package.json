@@ -1,6 +1,6 @@
 {
   "name": "ebs-fushu",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "engines": {
     "node": ">=24.0.0"
   },
@@ -19,9 +19,11 @@
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.357.0",
     "debug": "^4.3.1",
+    "minimist": "^1.2.6"
+  },
+  "devDependencies": {
     "eslint": "^9.15.0",
     "eslint-plugin-jsdoc": "^50.5.0",
-    "minimist": "^1.2.6",
     "mocha": "^10.8.2",
     "rewire": "^9.0.1"
   }

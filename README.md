@@ -11,13 +11,11 @@ Now all EBS volumes that are attached to this EC2 instance will have snapshots c
 ## Install
 
 1. Download and install [Node.js](https://nodejs.org/) LTS
-2. Clone this repository
+2. Clone this repository and navigate to it: `cd ebs-fushu`
 3. Install dependencies:
 
 ```bash
-cd ebs-fushu
-npm ci
-npm audit fix
+NODE_ENV=production npm ci
 ```
 
 ## Prepare environment
@@ -30,12 +28,6 @@ export AWS_SECRET_ACCESS_KEY='zz'
 export AWS_REGION='us-east-1'
 # Optionally enable debug messages
 export DEBUG='ebs-fushu:*'
-```
-
-## Run linting and unit tests
-
-```bash
-npm test
 ```
 
 ## Dry run
